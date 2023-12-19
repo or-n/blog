@@ -1,4 +1,4 @@
-Blog using markdown files
+# Blog using markdown files
 
 To run the server. First make sure to build the client
 ```
