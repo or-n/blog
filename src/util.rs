@@ -2,15 +2,18 @@ use bytes::Bytes;
 use pulldown_cmark::{html, Options, Parser};
 use warp::Filter;
 
-pub fn string_filter(
-    limit: u64,
-) -> impl Filter<Extract = (String,), Error = warp::Rejection> + Clone {
-    warp::body::content_length_limit(limit)
-        .and(warp::filters::body::bytes())
-        .and_then(convert_to_string)
+#[macro_export]
+macro_rules! route {
+    ($x:ty) => (impl Filter<Extract = ($x,), Error = warp::Rejection> + Clone)
 }
 
-async fn convert_to_string(bytes: Bytes) -> Result<String, warp::Rejection> {
+pub fn string_body(limit: u64) -> route!(String) {
+    warp::body::content_length_limit(limit)
+        .and(warp::filters::body::bytes())
+        .and_then(bytes_to_string)
+}
+
+async fn bytes_to_string(bytes: Bytes) -> Result<String, warp::Rejection> {
     String::from_utf8(bytes.to_vec()).map_err(|_| warp::reject())
 }
 
@@ -43,9 +46,4 @@ pub fn file_names(path: &str) -> std::io::Result<Vec<String>> {
             }
         })
         .collect())
-}
-
-#[macro_export]
-macro_rules! route {
-    ($x:ty) => (impl Filter<Extract = ($x,), Error = warp::Rejection> + Clone)
 }

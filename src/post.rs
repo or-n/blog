@@ -23,7 +23,7 @@ pub fn api() -> route!(impl warp::Reply) {
         .and(warp::path::param())
         .and(path::end())
         .and(warp::post())
-        .and(string_filter(1_000_1000))
+        .and(string_body(1_000_1000))
         .map(handle_create);
     let delete = path("del")
         .and(warp::path::param())
