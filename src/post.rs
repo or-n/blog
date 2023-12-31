@@ -38,27 +38,7 @@ pub fn api() -> route!(impl warp::Reply) {
 }
 
 async fn handle_list_metadata() -> Result<impl warp::Reply, warp::Rejection> {
-    let entries = std::fs::read_dir(ROOT).map_err(|_| warp::reject())?;
-    let mut pairs: Vec<_> = entries
-        .filter_map(|entry| {
-            entry.ok().and_then(|e| {
-                e.metadata()
-                    .ok()
-                    .map(|m| (e.file_name().into_string().unwrap(), m))
-            })
-        })
-        .collect();
-    pairs.sort_by(|a, b| b.1.modified().unwrap().cmp(&a.1.modified().unwrap()));
-    let names: Vec<String> = pairs
-        .into_iter()
-        .filter_map(|(s, _)| {
-            if s.ends_with(".md") {
-                Some(s[..s.len() - 3].to_string())
-            } else {
-                None
-            }
-        })
-        .collect();
+    let names = file_names(ROOT).map_err(|_| warp::reject())?;
     Ok(warp::reply::json(&names))
 }
 
