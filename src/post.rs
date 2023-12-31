@@ -38,7 +38,7 @@ pub fn api() -> route!(impl warp::Reply) {
 }
 
 async fn handle_list_metadata() -> Result<impl warp::Reply, warp::Rejection> {
-    let names = file_names(ROOT).map_err(|_| warp::reject())?;
+    let names = file_names(ROOT, ".md").map_err(|_| warp::reject())?;
     Ok(warp::reply::json(&names))
 }
 

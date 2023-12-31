@@ -24,7 +24,7 @@ pub fn render_markdown(markdown: &str) -> String {
     html_output
 }
 
-pub fn file_names(path: &str) -> std::io::Result<Vec<String>> {
+pub fn file_names(path: &str, extension: &str) -> std::io::Result<Vec<String>> {
     let entries = std::fs::read_dir(path)?;
     let mut pairs: Vec<_> = entries
         .filter_map(|entry| {
@@ -39,8 +39,8 @@ pub fn file_names(path: &str) -> std::io::Result<Vec<String>> {
     Ok(pairs
         .into_iter()
         .filter_map(|(s, _)| {
-            if s.ends_with(".md") {
-                Some(s[..s.len() - 3].to_string())
+            if s.ends_with(extension) {
+                Some(s[..s.len() - extension.len()].to_string())
             } else {
                 None
             }
