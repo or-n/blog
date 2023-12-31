@@ -53,11 +53,6 @@ fn handle_view_markdown(path: String) -> impl warp::Reply {
     warp::reply::html(contents)
 }
 
-#[derive(Debug)]
-struct FileCreationError;
-
-impl warp::reject::Reject for FileCreationError {}
-
 fn handle_create(path: String, body: String) -> impl warp::Reply {
     let full_path = format!("{ROOT}/{}.md", &path);
     match File::create(&full_path) {
@@ -71,7 +66,7 @@ fn handle_create(path: String, body: String) -> impl warp::Reply {
         }
         Err(_) => warp::reply::with_status(
             format!("Error saving file at path: \"{}\"", path),
-            StatusCode::INTERNAL_SERVER_ERROR,
+            StatusCode::CONFLICT,
         ),
     }
 }
