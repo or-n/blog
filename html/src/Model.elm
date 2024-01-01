@@ -10,11 +10,12 @@ type alias Model =
     , shared : Shared
     }
 
+type alias Meta = (String, String)
 
 type alias Shared =
     { key : Nav.Key
     , error : Maybe String
-    , file_names : Maybe (List String)
+    , meta : Maybe (List Meta)
     }
 
 
@@ -66,7 +67,7 @@ init key =
 
 
 init_shared key =
-    { file_names = Nothing
+    { meta = Nothing
     , key = key
     , error = Nothing
     }

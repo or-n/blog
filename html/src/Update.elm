@@ -1,7 +1,7 @@
 module Update exposing (..)
 
 import Http
-import Json.Decode exposing (list, string)
+import Json.Decode exposing (list, string, succeed, andThen)
 import Model exposing (..)
 import Task
 import Update.Edit exposing (..)
@@ -13,8 +13,11 @@ import Url
 loadNames =
     Http.get
         { url = "/files/"
-        , expect = Http.expectJson FileNamesLoaded (list string)
+        , expect = Http.expectJson MetaLoaded (list (list string))
         }
+
+pair a b =
+    a |> andThen (\a_value -> b |> andThen (\b_value -> succeed (a_value, b_value)))
 
 
 type Msg
@@ -22,7 +25,7 @@ type Msg
     | EditMsg EditMsg
     | Delete String
     | Deleted (Result Http.Error String)
-    | FileNamesLoaded (Result Http.Error (List String))
+    | MetaLoaded (Result Http.Error (List (List String)))
     | NoOp
     | RouteMsg RouteMsg
     | Edit String
@@ -105,11 +108,19 @@ update msg model =
             in
             ( new, cmd |> Cmd.map RouteMsg )
 
-        FileNamesLoaded result ->
+        MetaLoaded result ->
             case result of
-                Ok names ->
+                Ok list_meta ->
+                    let
+                        meta = list_meta
+                            |> List.map to_pair
+
+                        to_pair xs = case xs of
+                            [a, b] -> (a, b)
+                            _ -> ("", "")
+                    in
                     ( model
-                        |> update_shared (\shared -> { shared | file_names = Just names })
+                        |> update_shared (\shared -> { shared | meta = Just meta })
                     , Cmd.none
                     )
 
