@@ -28,11 +28,7 @@ view_route : Model -> Element Msg
 view_route model =
     case model.route of
         Root ->
-            let
-                names = model.shared.meta
-                    |> Maybe.map (List.map (\(name, image) -> name))
-            in 
-                view_root names
+            view_root model.shared.meta
 
         FileView data ->
             column []

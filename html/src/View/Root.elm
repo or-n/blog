@@ -21,7 +21,7 @@ button_attrs =
     ]
 
 
-view_root file_names =
+view_root maybe_meta =
     let
         new =
             Input.button button_attrs
@@ -49,16 +49,16 @@ view_root file_names =
             , new
             , upload_file
             ]
-        , case file_names of
-            Just names ->
-                view_names names
+        , case maybe_meta of
+            Just meta ->
+                view_meta meta
 
             _ ->
                 none
         ]
 
 
-view_names =
+view_meta =
     List.map view_post_miniature
         >> column
             [ width fill
@@ -66,7 +66,7 @@ view_names =
             ]
 
 
-view_post_miniature name =
+view_post_miniature (name, image_url) =
     link
         [ Background.color (rgb 1.0 1.0 1.0)
         , Border.rounded 10
@@ -78,6 +78,9 @@ view_post_miniature name =
         , label =
             Input.button []
                 { onPress = Nothing
-                , label = text name
+                , label = column []
+                    [ text name
+                    , image [] { src = image_url, description = "blep" }
+                    ]
                 }
         }
