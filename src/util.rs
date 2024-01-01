@@ -24,7 +24,10 @@ pub fn render_markdown(markdown: &str) -> String {
     html_output
 }
 
-pub fn file_names(path: &str, extension: &str) -> std::io::Result<Vec<String>> {
+pub fn file_names_and_modified_time(
+    path: &str,
+    extension: &str,
+) -> std::io::Result<Vec<(String, std::time::SystemTime)>> {
     let entries = std::fs::read_dir(path)?;
     let mut pairs: Vec<_> = entries
         .filter_map(|entry| {
@@ -38,9 +41,12 @@ pub fn file_names(path: &str, extension: &str) -> std::io::Result<Vec<String>> {
     pairs.sort_by(|a, b| b.1.modified().unwrap().cmp(&a.1.modified().unwrap()));
     Ok(pairs
         .into_iter()
-        .filter_map(|(s, _)| {
+        .filter_map(|(s, metadata)| {
             if s.ends_with(extension) {
-                Some(s[..s.len() - extension.len()].to_string())
+                Some((
+                    s[..s.len() - extension.len()].to_string(),
+                    metadata.modified().unwrap(),
+                ))
             } else {
                 None
             }
